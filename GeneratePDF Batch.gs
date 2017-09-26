@@ -468,24 +468,24 @@ catch(e){
 //End Catch Error       
 }
 
-function UpdatePDFLinksToAssign(){
+function UpdatePDFLinksToAssign(){ //updated code 9/26/2017 3:05
 try{
            var funcName = arguments.callee.toString();
            funcName = funcName.substr('function '.length);
            funcName = funcName.substr(0, funcName.indexOf('('));      
-  
-var sheetAssign = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('CombinedTrips');    
-var lastRowAssign = sheetAssign.getLastRow();  
-var sheetTripTicket = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TripTicket');  
-var lastRowTripTicket = sheetTripTicket.getLastRow();
+//start function code  
+var sheetCombinedTrips = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('CombinedTrips');    
+var DataCombinedTrips = sheetCombinedTrips.getDataRange().getValues(); 
       var scriptProperties = PropertiesService.getScriptProperties();
       var BatchPDFID = scriptProperties.getProperty('BatchPDFID');
       var BatchPDFURL = scriptProperties.getProperty('BatchPDFURL');
       var BatchName = scriptProperties.getProperty('BatchName'); 
       var BatchPDFlink = [['=hyperlink("' + BatchPDFURL + '", "' + BatchName + '")']];
-    for (var x = 2; x < lastRowAssign+1; x++) {
-          sheetAssign.getRange(x,21).setValue(BatchPDFlink);
+      for (var k = 1; k < DataCombinedTrips.length; k++) {
+          var rowz = k+1; 
+          sheetCombinedTrips.getRange(rowz, 21).setValues(BatchPDFlink);
     }
+//ednd function code
 //Catch Error
 }
 catch(e){

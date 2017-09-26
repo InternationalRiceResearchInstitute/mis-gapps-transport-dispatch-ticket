@@ -417,50 +417,55 @@ function UpdateCombinedTripsToTripTicket(){
 try{
            var funcName = arguments.callee.toString();
            funcName = funcName.substr('function '.length);
-           funcName = funcName.substr(0, funcName.indexOf('('));    
-  
-  
-var RowPrint = []; var i = 0;  
-      var sheetAssign = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('CombinedTrips');   
-      var sheetTripTicket = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TripTicket');  
+           funcName = funcName.substr(0, funcName.indexOf('(')); 
+//start function code   
+      var dataCombinedtrips = []; 
       var scriptProperties = PropertiesService.getScriptProperties();
       var BatchPDFID = scriptProperties.getProperty('BatchPDFID');
+      var BatchName = scriptProperties.getProperty('BatchName');   
       var BatchPDFURL = scriptProperties.getProperty('BatchPDFURL');
-      var BatchPDFlink = scriptProperties.getProperty('BatchPDFlink');  
-      var BatchName = scriptProperties.getProperty('BatchName'); 
-      var lastRowTripTicket = sheetTripTicket.getLastRow();
-      var lastRowAssign = sheetAssign.getLastRow(); 
-      for (var g = 2; g < lastRowAssign+1; g++) {
-       
-          var TripTicketforPrinting = sheetAssign.getRange(g,1).getValue();
-          for(var h = 3; h < lastRowTripTicket+1; h++) {
-               var TripTicketforUpdate = sheetTripTicket.getRange(h,1).getValue();
-               if (TripTicketforPrinting == TripTicketforUpdate) {
-               RowPrint[i] = h;
-               i++;
+      var logemail = Session.getActiveUser().getEmail(); // gets the email of the user who made the PDF Trip Ticket. 
+      var CurrentDateTime = Utilities.formatDate(new Date(), "GMT+8","M/d/YYYY+h:mm a");
+      var DateTimeLog = 'Document successfully merged by: ' +logemail+ " " + CurrentDateTime; 
+      var BatchPDFlink = [['=hyperlink("' + BatchPDFURL + '", "' + BatchName + '")']];
+      Logger.log('BatchPDFID'+'--'+BatchPDFID);
+      Logger.log('BatchName'+'--'+BatchName);
+      Logger.log('BatchPDFURL'+'--'+BatchPDFURL);
+      var UpdateRow = [BatchPDFID,BatchPDFURL,BatchPDFlink,DateTimeLog]; 
+      
+      Logger.log(UpdateRow);
+      var sheetCombineTrips = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('CombinedTrips');   
+      var sheetTripTicket = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TripTicket'); 
+      var DatasheetCombinedTrips = sheetCombineTrips.getDataRange().getValues();
+      var DatasheetTripTickets = sheetTripTicket.getDataRange().getValues(); 
+      var sheetTEST = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TEST'); 
+      
+      //sheetTripTicket.getRange(k, 24).setValue('Document successfully merged by: ' +logemail+" " + CurrentDateTime); 
+      Logger.log(UpdateRow.length);
+      sheetTEST.getRange(6, 4, 1, UpdateRow.length).setValues([UpdateRow]);
+      
+      for (var x = 1; x<DatasheetCombinedTrips.length; x++){
+          Logger.log(DatasheetCombinedTrips[x][0]); 
+          for (var y = 0; y<DatasheetTripTickets.length; y++){
+               if(DatasheetCombinedTrips[x][0] == DatasheetTripTickets[y][0]){
+               var rowx = x+1; // row of CombinedTrip reference
+               var rowy = y+1; // row of Trip Ticket reference
+               //Logger.log(DatasheetCombinedTrips[x][0] +'-- Match --'+ DatasheetTripTickets[y][0]);
+               //Logger.log('rowx - ' + rowx +';rowy -'+rowy); 
+               sheetTripTicket.getRange(rowy, 21, 1, UpdateRow.length).setValues([UpdateRow]);   // logs the PDF ID, BatchName, PDFhyperlink, datetime user 
+               var BegTimeLog = Utilities.formatDate(DatasheetCombinedTrips[x][18], "GMT+8","h:mm:ss a"); //logs time departure of the driver
+               sheetTripTicket.getRange(rowy, 291).setValue(BegTimeLog);
+               //Logger.log('BegTimeLog: '+ DatasheetCombinedTrips[x][18]); 
                }
           }
-     }
-     var length = RowPrint.length;
-  //get email log
-  var logemail = Session.getActiveUser().getEmail();
-  for (var m = 0; m < RowPrint.length; m++ ) {
-        var k = RowPrint[m];
-        //for (var k = startrow; k < lastRowTicket+1; k++){
-        sheetTripTicket.getRange(k, 21).setValue(BatchPDFID); 
-        sheetTripTicket.getRange(k, 22).setValue(BatchPDFURL); 
-        var BatchPDFlink = [['=hyperlink("' + BatchPDFURL + '", "' + BatchName + '")']];
-        sheetTripTicket.getRange(k, 23).setValue(BatchPDFlink); 
-         var CurrentDateTime = Utilities.formatDate(new Date(), "GMT+8","M/d/YYYY+h:mm a");
-          sheetTripTicket.getRange(k, 24).setValue('Document successfully merged by: ' +logemail+" " + CurrentDateTime); 
-        }
-  
+      }
+//end function code 
 //Catch Error
 }
 catch(e){
          MailApp.sendEmail('m.delrosario@irri.org', 'TS Dispatch Error', '', {htmlBody: "Function Name: "+funcName+"<br>Filename: "+e.fileName+"<br> Message: "+e.message+"<br> Line no: "+e.lineNumber})
 } 
-//End Catch Error     
+//End Catch Error       
 }
 
 function UpdatePDFLinksToAssign(){

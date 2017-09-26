@@ -1,4 +1,4 @@
-function GetNewBatchProcess(){
+function GetNewBatchProcess(){ //Function to Get New Process of rows from CombinedTrips sheet to produce PDF Trip Tickets
 try{
            var funcName = arguments.callee.toString();
            funcName = funcName.substr('function '.length);

@@ -179,7 +179,7 @@ try{
      SheetTimerLog.appendRow(value);
        
      var startC = new Date(); 
-     UpdateCombinedTripsToTripTicket();   
+     UpdateCombinedTripsToTripTicket();  
      UpdatePDFLinksToAssign();  
      UpdatePDFLinksToTripRequest();  
      // UpdatePDFLinksToTripRequest();  
@@ -413,7 +413,7 @@ catch(e){
 //End Catch Error         
 }
 
-function UpdateCombinedTripsToTripTicket(){
+function UpdateCombinedTripsToTripTicket(){ //updated code 9/26/2017 2:05 PM
 try{
            var funcName = arguments.callee.toString();
            funcName = funcName.substr('function '.length);
@@ -442,8 +442,7 @@ try{
       
       //sheetTripTicket.getRange(k, 24).setValue('Document successfully merged by: ' +logemail+" " + CurrentDateTime); 
       Logger.log(UpdateRow.length);
-      //sheetTEST.getRange(6, 4, 1, UpdateRow.length).setValues([UpdateRow]);
-      
+      //sheetTEST.getRange(6, 4, 1, UpdateRow.length).setValues([UpdateRow]);   
       for (var x = 1; x<DatasheetCombinedTrips.length; x++){
           Logger.log(DatasheetCombinedTrips[x][0]); 
           for (var y = 0; y<DatasheetTripTickets.length; y++){
@@ -468,7 +467,7 @@ catch(e){
 //End Catch Error       
 }
 
-function UpdatePDFLinksToAssign(){
+function UpdatePDFLinksToAssign(){ //updated code 9/26/2017 3:05
 try{
            var funcName = arguments.callee.toString();
            funcName = funcName.substr('function '.length);
@@ -483,7 +482,6 @@ var DataCombinedTrips = sheetCombinedTrips.getDataRange().getValues();
       var BatchPDFlink = [['=hyperlink("' + BatchPDFURL + '", "' + BatchName + '")']];
       for (var k = 1; k < DataCombinedTrips.length; k++) {
           var rowz = k+1; 
-          //Logger.log(DataCombinedTrips[x][0] + ' - ' + rowx); 
           sheetCombinedTrips.getRange(rowz, 21).setValues(BatchPDFlink);
     }
 //ednd function code
@@ -492,7 +490,7 @@ var DataCombinedTrips = sheetCombinedTrips.getDataRange().getValues();
 catch(e){
          MailApp.sendEmail('m.delrosario@irri.org', 'TS Dispatch Error', '', {htmlBody: "Function Name: "+funcName+"<br>Filename: "+e.fileName+"<br> Message: "+e.message+"<br> Line no: "+e.lineNumber})
 } 
-//End Catch Error  
+//End Catch Error    
 }
 
 function UpdatePDFLinksToTripRequest(){ //Enhancement for Updating PDFLink from CombinedTrips to TripRequest 9/27/2017
@@ -530,5 +528,14 @@ var countupdate = 0;
 catch(e){
          MailApp.sendEmail('m.delrosario@irri.org', 'TS Dispatch Error', '', {htmlBody: "Function Name: "+funcName+"<br>Filename: "+e.fileName+"<br> Message: "+e.message+"<br> Line no: "+e.lineNumber})
 } 
-//End Catch Error   
+//End Catch Error  
 }
+
+
+
+
+
+  
+
+
+ 

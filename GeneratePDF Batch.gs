@@ -1,4 +1,4 @@
-function GetNewBatchProcess(){
+function GetNewBatchProcess(){ //Function to Get New Process of rows from CombinedTrips sheet to produce PDF Trip Tickets
 try{
            var funcName = arguments.callee.toString();
            funcName = funcName.substr('function '.length);
@@ -413,7 +413,7 @@ catch(e){
 //End Catch Error         
 }
 
-function UpdateCombinedTripsToTripTicketV2(){
+function UpdateCombinedTripsToTripTicket(){
 try{
            var funcName = arguments.callee.toString();
            funcName = funcName.substr('function '.length);
@@ -468,57 +468,7 @@ catch(e){
 //End Catch Error       
 }
 
-function UpdateCombinedTripsToTripTicket(){
-try{
-           var funcName = arguments.callee.toString();
-           funcName = funcName.substr('function '.length);
-           funcName = funcName.substr(0, funcName.indexOf('('));    
-  
-  
-var RowPrint = []; var i = 0;  
-      var sheetAssign = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('CombinedTrips');   
-      var sheetTripTicket = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TripTicket');  
-      var scriptProperties = PropertiesService.getScriptProperties();
-      var BatchPDFID = scriptProperties.getProperty('BatchPDFID');
-      var BatchPDFURL = scriptProperties.getProperty('BatchPDFURL');
-      var BatchPDFlink = scriptProperties.getProperty('BatchPDFlink');  
-      var BatchName = scriptProperties.getProperty('BatchName'); 
-      var lastRowTripTicket = sheetTripTicket.getLastRow();
-      var lastRowAssign = sheetAssign.getLastRow(); 
-      for (var g = 2; g < lastRowAssign+1; g++) {
-       
-          var TripTicketforPrinting = sheetAssign.getRange(g,1).getValue();
-          for(var h = 3; h < lastRowTripTicket+1; h++) {
-               var TripTicketforUpdate = sheetTripTicket.getRange(h,1).getValue();
-               if (TripTicketforPrinting == TripTicketforUpdate) {
-               RowPrint[i] = h;
-               i++;
-               }
-          }
-     }
-     var length = RowPrint.length;
-  //get email log
-  var logemail = Session.getActiveUser().getEmail();
-  for (var m = 0; m < RowPrint.length; m++ ) {
-        var k = RowPrint[m];
-        //for (var k = startrow; k < lastRowTicket+1; k++){
-        sheetTripTicket.getRange(k, 21).setValue(BatchPDFID); 
-        sheetTripTicket.getRange(k, 22).setValue(BatchPDFURL); 
-        var BatchPDFlink = [['=hyperlink("' + BatchPDFURL + '", "' + BatchName + '")']];
-        sheetTripTicket.getRange(k, 23).setValue(BatchPDFlink); 
-         var CurrentDateTime = Utilities.formatDate(new Date(), "GMT+8","M/d/YYYY+h:mm a");
-          sheetTripTicket.getRange(k, 24).setValue('Document successfully merged by: ' +logemail+" " + CurrentDateTime); 
-        }
-  
-//Catch Error
-}
-catch(e){
-         MailApp.sendEmail('m.delrosario@irri.org', 'TS Dispatch Error', '', {htmlBody: "Function Name: "+funcName+"<br>Filename: "+e.fileName+"<br> Message: "+e.message+"<br> Line no: "+e.lineNumber})
-} 
-//End Catch Error     
-}
-
-function UpdatePDFLinksToAssignV2 (){
+function UpdatePDFLinksToAssign(){
 try{
            var funcName = arguments.callee.toString();
            funcName = funcName.substr('function '.length);
@@ -545,34 +495,7 @@ catch(e){
 //End Catch Error  
 }
 
-function UpdatePDFLinksToAssign(){
-try{
-           var funcName = arguments.callee.toString();
-           funcName = funcName.substr('function '.length);
-           funcName = funcName.substr(0, funcName.indexOf('('));      
-  
-var sheetAssign = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('CombinedTrips');    
-var lastRowAssign = sheetAssign.getLastRow();  
-var sheetTripTicket = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TripTicket');  
-var lastRowTripTicket = sheetTripTicket.getLastRow();
-      var scriptProperties = PropertiesService.getScriptProperties();
-      var BatchPDFID = scriptProperties.getProperty('BatchPDFID');
-      var BatchPDFURL = scriptProperties.getProperty('BatchPDFURL');
-      var BatchName = scriptProperties.getProperty('BatchName'); 
-      var BatchPDFlink = [['=hyperlink("' + BatchPDFURL + '", "' + BatchName + '")']];
-    for (var x = 2; x < lastRowAssign+1; x++) {
-          sheetAssign.getRange(x,21).setValue(BatchPDFlink);
-          
-    }
-//Catch Error
-}
-catch(e){
-         MailApp.sendEmail('m.delrosario@irri.org', 'TS Dispatch Error', '', {htmlBody: "Function Name: "+funcName+"<br>Filename: "+e.fileName+"<br> Message: "+e.message+"<br> Line no: "+e.lineNumber})
-} 
-//End Catch Error    
-}
-
-function UpdatePDFLinksToTripRequestV2(){ //Enhancement for Updating PDFLink from CombinedTrips to TripRequest 9/27/2017
+function UpdatePDFLinksToTripRequest(){ //Enhancement for Updating PDFLink from CombinedTrips to TripRequest 9/27/2017
 try{
            var funcName = arguments.callee.toString();
            funcName = funcName.substr('function '.length);
@@ -609,47 +532,3 @@ catch(e){
 } 
 //End Catch Error   
 }
-
-function UpdatePDFLinksToTripRequest(){
-try{
-           var funcName = arguments.callee.toString();
-           funcName = funcName.substr('function '.length);
-           funcName = funcName.substr(0, funcName.indexOf('('));      
-  
-var sheetTripRequest = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TripRequest');    
-var lastRowTripRequest = sheetTripRequest.getLastRow();  
-var sheetTripTicket = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TripTicket');  
-var lastRowTripTicket = sheetTripTicket.getLastRow();
-
-    for (var x = 3; x < lastRowTripRequest+1; x++) {
-       var TripTicketRequest = sheetTripRequest.getRange(x,22).getValue();
-       for (var y = 3; y < lastRowTripTicket+1; y++){
-             var TripTicketPDF = sheetTripTicket.getRange(y,1).getValue();
-                 if (TripTicketPDF == TripTicketRequest) {
-                        var PDFID = sheetTripTicket.getRange(y, 21).getValue();
-                        if (PDFID != '') {
-                        var PDFName = sheetTripTicket.getRange(y, 23).getValue();
-                        var PDFURL = DriveApp.getFileById(PDFID).getUrl(); 
-                        var PDFHyperLink ='<b><a href="'+PDFURL+'" style="text-decoration:none;background-color:transparent" target="_blank">ⓘ</a></b>';
-                        sheetTripRequest.getRange(x,24).setValue(PDFHyperLink);
-                        }
-                  }
-             }
-     }
-  
-//Catch Error
-}
-catch(e){
-         MailApp.sendEmail('m.delrosario@irri.org', 'TS Dispatch Error', '', {htmlBody: "Function Name: "+funcName+"<br>Filename: "+e.fileName+"<br> Message: "+e.message+"<br> Line no: "+e.lineNumber})
-} 
-//End Catch Error     
-}
-
-
-
-
-
-  
-
-
- 

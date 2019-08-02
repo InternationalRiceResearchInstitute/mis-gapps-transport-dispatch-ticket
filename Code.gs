@@ -6,24 +6,46 @@ var FormLink = 16;
 var status = '';
 
 function getResponseLink(){
-   var sheetrange = SpreadsheetApp.getActiveRange(), data = sheetrange.getValues();
+  var sheetrange = SpreadsheetApp.getActiveRange(), data = sheetrange.getValues();
   var output = [];
-    for(var i = 0, iLen = data.length; i < iLen; i++) {
+  for(var i = 0, iLen = data.length; i < iLen; i++) {
   var timestamp = data[i][0];
  
- var formSubmitted = FormApp.openByUrl(formURL).getResponses(timestamp);
-// var formSubmitted = form.getResponses(timestamp);
- var editResponseUrl = formSubmitted[0].getEditResponseUrl();
- Logger.log(editResponseUrl);
-      var link = [[editResponseUrl]];
-      output.push([editResponseUrl]);
-      Logger.log(output);
-      sheetrange.offset(0,15).setValues(output);
-    }
+  var formSubmitted = FormApp.openByUrl(formURL).getResponses(timestamp);
+  // var formSubmitted = form.getResponses(timestamp);
+  var editResponseUrl = formSubmitted[0].getEditResponseUrl();
+  Logger.log(editResponseUrl);
+       var link = [[editResponseUrl]];
+       output.push([editResponseUrl]);
+       Logger.log(output);
+       sheetrange.offset(0,15).setValues(output);
+  }
 }
 
+function getURLform(){
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TripRequest');
+  var lastRow = sheet.getLastRow();
+  var data = sheet.getDataRange().getValues();
+  var sheetFileID = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('FileIDList');
+  var FormLinkID = sheetFileID.getRange(4,2).getValue();
+  var formURL = 'https://docs.google.com/a/irri.org/forms/d/'+FormLinkID+'/viewform'; 
+  var form = FormApp.openByUrl(formURL); //What's wrong? 
+  var timestamp =  new Date(sheetFileID.getRange(7458,1).getValue());
+  var formSubmitted = form.getResponses(timestamp);
+  Logger.log(timestamp);
+  Logger.log(formSubmitted);
+  if(formSubmitted.length < 1) {
+  var editResponseUrl = formSubmitted[0].getEditResponseUrl();
+  Logger.log(edirResponseUrl); 
+                               }
+}
 
 function getEditResponseUrls(){
+try{
+           var funcName = arguments.callee.toString();
+           funcName = funcName.substr('function '.length);
+           funcName = funcName.substr(0, funcName.indexOf('('));  
+  
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TripRequest');
   var lastRow = sheet.getLastRow();
   var data = sheet.getDataRange().getValues();
@@ -50,14 +72,27 @@ function getEditResponseUrls(){
       var RequestNo =  YearToday + (Number(100000) + Number(newTripNum));
       var Tags = sheet.getRange(i+1, 19).getValue();
       newTripNum++;
+      var rowi = i+1; 
       sheetAutoNum.getRange(1, 2).setValue(newTripNum);
       sheet.getRange(i+1, 17).setValue(RequestNo);
       sheet.getRange(i+1, 18).setValue(DateToday);
+      var dateentry = sheet.getRange(i+1, 8).getValues();
+      var DateSource = new Date(dateentry);
+      //=if(H5609<>"",TEXT(H5609,"M/d/yyyy"),"")
+      var textvalue = '=if(H'+rowi+'<>"",TEXT(H'+rowi+',"M/d/yyyy"),"")'; 
+      sheet.getRange(i+1, 26).setValue(textvalue);
       if (Tags != 0){ sheet.getRange(i+1, 19).setValue(Tags);} else {var Tags = 0; sheet.getRange(i+1, 19).setValue(Tags);}   
       var DateToday = Utilities.formatDate(new Date(), "GMT+8","YYYYMMdd");
     //  sheet.getRange(i+1, 17).setValue(DateToday);                  //Update the Date of Entry / Edit
     }
   }
+  
+//Catch Error
+}
+catch(e){
+         MailApp.sendEmail('m.delrosario@irri.org', 'TS Dispatch Error', '', {htmlBody: "Function Name: "+funcName+"<br>Filename: "+e.fileName+"<br> Message: "+e.message+"<br> Line no: "+e.lineNumber})
+} 
+//End Catch Error   
 }
 
 
@@ -126,7 +161,8 @@ function completeMenu(){
 
 function FirstMenu(){
  SpreadsheetApp.getUi()
-    .createMenu("Transaction")
+    .createMenu("Transaction")  
+    .addItem("Generate Regular Trip", "GenerateRegularTrips")
     .addItem("Select Trip Request Day","TripRequestSummary")
     .addItem("Save Combination Tag","SaveTripMarkings")
     .addSeparator()
@@ -143,7 +179,7 @@ function SecondMenu(){
     .addItem("Generate PDF Trip Tickets","PDFTripTicket")
      //.addItem("Backup Run PDF Trip Tickets ","GetNewBatchProcess")
     .addItem("Select Trip Ticket Day","TripTicketSummary")
-    //.addItem("Save Trip Ticket Details","SaveTripTicketDetails")
+    .addItem("Save Trip Ticket Details","SaveTripTicketDetails")
     .addItem("Back to Trip Request Commands","TripTrequestCommands")
     .addItem("Archive Trip Tickets","ArchiveTripTickets") 
     .addToUi()  
@@ -174,7 +210,7 @@ autosortFormulaStandard();
 CombineTripCheck();
 var sheetCombine = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('SelectedTripRequests')
 var PickUpDate = sheetCombine.getRange(2, 6).getValue();
-var PickupDate = Utilities.formatDate(PickUpDate, "GMT+8","M/d/YYYY"); 
+var PickupDate = Utilities.formatDate(new Date(PickUpDate), "GMT+8","M/d/YYYY"); 
 
 ListTripTicket(PickupDate);  
   SecondMenu();
@@ -283,6 +319,14 @@ function autosortFormulaAdditional() {
   sheet.getRange(1, 1).setFormula('=query(SelectedTripRequests!$A:$R,"SELECT A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R WHERE P=1 ORDER BY F,N,O")');
 }
 
+function testpickupdate(){
+  var date = '12/31/2017';
+  ListTripRequest(date);
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('TripRequest');
+  var DataTripRequest = sheet.getDataRange().getValues(); 
+  Logger.log(DataTripRequest.length);
+}
+
 
 function ListTripRequest(PickupDate){
   try{
@@ -301,11 +345,13 @@ function ListTripRequest(PickupDate){
    sheetpool.setFrozenRows(1);  
    var numNew = 0;
    var TripRequestNo = []; 
+    Logger.log(DataTripRequestList.length); 
       for (var x = 2; x<DataTripRequestList.length;x++){
            
-          var CompareDate = Utilities.formatDate(DataTripRequestList[x][5] , "GMT+8","M/d/YYYY");
-          var PickUpTime = Utilities.formatDate(DataTripRequestList[x][6], "GMT+8","hh:mm a") 
-          var ReturnDate = Utilities.formatDate(DataTripRequestList[x][7], "GMT+8","M/d/YYYY");
+          var CompareDate = Utilities.formatDate(new Date(DataTripRequestList[x][5]), "GMT+8","M/d/YYYY");
+          var PickUpTime = Utilities.formatDate(new Date(DataTripRequestList[x][6]), "GMT+8","hh:mm a") 
+          var ReturnDate = Utilities.formatDate(new Date(DataTripRequestList[x][7]), "GMT+8","M/d/YYYY");
+          
           if (DataTripRequestList[x][12] == 'Ongoing' && CompareDate == PickupDate){
           //Logger.log(DataTripRequestList[x])
           //var values = [Passenger,PickUpDate,deptime,PickUpTime,ReturnDate,PickupLocation,Destination]
@@ -338,7 +384,7 @@ function ListTripRequest(PickupDate){
           numNew++;
           }
       }
-    Logger.log(ReferenceID);
+    //Logger.log(ReferenceID);
       FomatPlainText("SelectedTripRequests",1);
   if (numNew != 0) {} else {var ReferenceID  = 'None';}
   var sheetFileID = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('FileIDList');
@@ -568,7 +614,7 @@ function SaveTripTicketDetails() { // Saves/Update the Trip Ticket from AssignTa
                           PlateNo[v] = sheetAssign.getRange(v+2, 20).getValue(); 
                           
                           if (DepartTime[v] instanceof Date){
-                               DepartTime[v] = Utilities.formatDate(DepartTime[v], "GMT+8","h:mm a");
+                               DepartTime[v] = Utilities.formatDate(new Date(DepartTime[v]), "GMT+8","h:mm a");
                                //Logger.log(v + " " + DepartTime[v]);
                           } else { }
                                  
@@ -663,7 +709,7 @@ function ListTripTicket(PickUpDate) {
          //var collectdata = [][];
           for (var x = 3; x < lastRowTicket+1; x++) {
                    var PickUpDateTT = sheetTicket.getRange(x, 3).getValue();     
-                   var PickUpDateTT = Utilities.formatDate(PickUpDateTT, "GMT+8","M/d/YYYY");
+                   var PickUpDateTT = Utilities.formatDate(new Date(PickUpDateTT), "GMT+8","M/d/YYYY");
                    //Logger.log(PickUpDateTT);
                    if (PickUpDate == PickUpDateTT) {
                         countMatchDates++;

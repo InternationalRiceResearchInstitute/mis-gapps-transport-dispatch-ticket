@@ -493,7 +493,7 @@ catch(e){
 //End Catch Error    
 }
 
-function UpdatePDFLinksToTripRequest(){ //Enhancement for Updating PDFLink from CombinedTrips to TripRequest 9/27/2017
+function UpdatePDFLinksToTripRequest(){ //Enhancement for Updating PDFLink from CombinedTrips to TripRequest 9/27/2017 10:00 AM
 try{
            var funcName = arguments.callee.toString();
            funcName = funcName.substr('function '.length);
@@ -517,10 +517,9 @@ var countupdate = 0;
              Logger.log(DataCombinedTrips[v][0]); 
              //Logger.log(DataCombinedTrips[v][0] +' -- '+ 'rowv: '+rowv+ ' rowu: ' +rowu);  
              //countupdate++;
-             sheetTripRequest.getRange(rowu, 22).setValue(PDFHyperLink);
+             sheetTripRequest.getRange(rowu, 24).setValue(PDFHyperLink);
              }
          }
-        
     }
 
 //Catch Error
@@ -530,12 +529,3 @@ catch(e){
 } 
 //End Catch Error  
 }
-
-
-
-
-
-  
-
-
- 

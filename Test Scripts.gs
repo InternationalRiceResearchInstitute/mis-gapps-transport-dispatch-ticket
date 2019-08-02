@@ -279,3 +279,15 @@ function BrowserMsg() {
 }
   
 }
+
+
+function convertdate(){
+
+var datesample = '5/25/2018 15:13:36';
+ var converteddate =  Utilities.formatDate(new Date(datesample), "GMT+8","dd-MM-YYYY HH:mm:ss"); 
+  Logger.log(converteddate); 
+  
+var n = converteddate.toString();
+ Logger.log(n)
+  
+}
